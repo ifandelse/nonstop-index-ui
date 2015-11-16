@@ -2,21 +2,22 @@ import lux from "lux.js";
 import halon from "halon";
 import $ from "jquery";
 import window from "window";
+import config from "../clientConfig";
 
-var lkAPI = halon( {
-	root: `${ window.location.origin }/api/`,
+var nsAPI = window.nsAPI = halon( {
+	root: `${ config[ "nonstop-index-api" ] }`,
 	knownOptions: {},
 	adapter: halon.jQueryAdapter( $ ),
-	version: 1
+	version: 1,
+	headers: config.headers || {}
 } );
 
 function errorHandler( error ) {
 	const message = error.toString();
-	lux.publishAction( "notifyError", { message } );
 	lux.publishAction( "error", error.stack || message );
 }
 
-lkAPI.connect().catch( errorHandler );
+nsAPI.connect().catch( errorHandler );
 
 var uiAPI = halon( {
 	root: `${ window.location.origin }/`,
@@ -32,13 +33,13 @@ uiAPI.connect().catch( errorHandler );
 
 export default lux.mixin( {
 	getActions: [
-		"notifyError",
-		"notifySuccess",
 		"pageInitialized"
 	],
 	namespace: "api",
 	handlers: {
 		initializePage() {},
+		getPackageList() {
+		},
 		sendLogBatch( data ) {
 			/* istanbul ignore next */
 			function errorHandler( err ) {
